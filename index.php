@@ -7,6 +7,11 @@ $DATA = []; //一回分の投稿の情報を入れる
 $BOARD = []; //全ての投稿の情報を入れる
 $error_message = [];
 
+//エスケープ処理
+function escape($s) {
+  return htmlspecialchars($s, ENT_QUOTES, "UTF-8");
+}
+
 //$FILEというファイルが存在しているとき
 //file_exists => ファイルチェック
 //json_decode => encodeされたデータを復元する
@@ -24,34 +29,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!empty($_POST['txt']) && !empty($_POST['title'])) {
     if (mb_strlen($_POST['title']) > 30) {
       $error_message[] = 'タイトルは30文字以下でお願いします。';
-    }else{
-    //$textに送信されたテキストを代入
-    $title = $_POST['title'];
-    $text = $_POST['txt'];
+    } else{
+      //$textに送信されたテキストを代入
+      $title = $_POST['title'];
+      $text = $_POST['txt'];
 
-    //新規データ
-    //新規データを配列にする
-    $DATA = [$id, $title, $text];
+      //新規データ
+      //新規データを配列にする
+      $DATA = [$id, $title, $text];
 
-    //この時$BOARDには.txtのデータが全て入っているため新たに$DATAを追加することになる
-    //array_push($BOARD,$DATA)と書いても良い
-    $BOARD[] = $DATA;
+      //この時$BOARDには.txtのデータが全て入っているため新たに$DATAを追加することになる
+      //array_push($BOARD,$DATA)と書いても良い
+      $BOARD[] = $DATA;
 
-    //全体配列をファイルに保存する
-    //json_encode =>  JSON形式にした文字列を返します。  これをしないとただの配列だよarrayが保存される。encodeすることで配列として保存される
-    //JSON_UNESCAPED_UNICODEでJdonを保存する際エスケープする
-    file_put_contents($FILE, json_encode(($BOARD),JSON_UNESCAPED_UNICODE));
+      //全体配列をファイルに保存する
+      //json_encode =>  JSON形式にした文字列を返します。  これをしないとただの配列だよarrayが保存される。encodeすることで配列として保存される
+      //JSON_UNESCAPED_UNICODEでJdonを保存するさいの文字化け防止
+      file_put_contents($FILE, json_encode(($BOARD),JSON_UNESCAPED_UNICODE));
 
-    //header()で指定したページにリダイレクト
-    //今回は今と同じ場所にリダイレクト（つまりWebページを更新）
-    header('Location: ' . $_SERVER['SCRIPT_NAME']);
-    //プログラム終了
-    exit;
+      //header()で指定したページにリダイレクト
+      //今回は今と同じ場所にリダイレクト（つまりWebページを更新）
+      header('Location: ' . $_SERVER['SCRIPT_NAME']);
+      //プログラム終了
+      exit;
     }
     
   } else {
-    if (empty($_POST['title'])) $error_message[] = 'タイトルは必須です。';
-    if (empty($_POST['txt'])) $error_message[] = "記事は必須です。";
+    if (empty($_POST['title'])) {
+      $error_message[] = 'タイトルは必須です。';
+    } 
+    if (empty($_POST['txt'])) {
+      $error_message[] = "記事は必須です。";
+    } 
   }
 }
 ?>
@@ -103,10 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php foreach (array_reverse($BOARD) as $DATA) : ?>
         <div class="content">
           <p class="articleTitle">
-            <?php echo $DATA[1]; ?>
+            <?php echo escape($DATA[1]); ?>
           </p>
           <p class="articleText">
-            <?php echo $DATA[2]; ?>
+            <?php echo escape($DATA[2]); ?>
           </p>
           <p class='routingStyle'><a href='article.php?id=<?php echo $DATA[0]; ?>'>記事全文・コメントを見る</a></p>
         </div>

@@ -16,6 +16,11 @@ $COMMENT_BOARD = []; //表示する配列
 
 $error_message = [];
 
+//エスケープ処理
+function escape($s) {
+  return htmlspecialchars($s, ENT_QUOTES, "UTF-8");
+}
+
 // ページの情報をココで取得
 // listは引数で何番目のものを取得するかの関数 今回だと$IDひとつなので配列の0番目つまりユニークな値を取得している
 foreach ($file as $index => list($ID)) {
@@ -126,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php foreach ((array)$COMMENT_BOARD as $DATA) : ?>
         <div class="commentContent">
           <p>
-            <?php echo $DATA[2] ?>
+            <?php echo escape($DATA[2]) ?>
           </p>
           <div>
             <form method="post">
@@ -142,3 +147,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
+
+<script></script>
